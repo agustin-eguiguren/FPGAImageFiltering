@@ -24,12 +24,8 @@ architecture arch of FilterController is
 
 
 -- signal definitions 
-signal CLK, START RESETb: std_logic;
+signal CLK, START, RESETb: std_logic;
 signal FILTER_SEL: std_logic_vector(3 downto 0);
-
-RESETb <= KEY(0);
-START <= KEY(1);
-FILTER_SEL <= SW(3 downto 0);
 
 -- component definitions
 
@@ -38,5 +34,8 @@ FILTER_SEL <= SW(3 downto 0);
 -- IMAGE FILTER
 -- VGA CONTROLLER
 begin
+    RESETb <= KEY(0);
+    START <= KEY(1);
+    FILTER_SEL <= SW(3 downto 0);
 
 end arch;

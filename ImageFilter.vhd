@@ -10,7 +10,7 @@ entity ImageFilter is
     generic (
         IMG_HEIGHT: INTEGER := 480;
         IMG_WIDTH: INTEGER := 640;
-        RAM_ADDR_SIZE: INTEGER := 20 -- 2^20 = 1048576 > 921600 = (307200)*3 = (640*480)*3
+        RAM_ADDR_SIZE: INTEGER := 20; -- 2^20 = 1048576 > 921600 = (307200)*3 = (640*480)*3
         ROM_ADDR_SIZE: INTEGER := 2 -- 4 possible filters
     );
     port (
@@ -19,7 +19,7 @@ entity ImageFilter is
         rom_in: in std_logic_vector(7 downto 0);
         ram_addr: out std_logic_vector(3 downto 0);
         rom_addr: out std_logic_vector(9 downto 0);
-        data_out: out std_logic(7 downto 0);
+        data_out: out std_logic_vector(7 downto 0);
         READY: out std_logic
     );
 end entity ImageFilter;

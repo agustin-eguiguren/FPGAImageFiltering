@@ -1,0 +1,45 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate C:\Users\agust\Desktop\uni\deberes\5000\5500\project\VGA_controller.qsys --block-symbol-file --output-directory=C:\Users\agust\Desktop\uni\deberes\5000\5500\project\VGA_controller --family="Cyclone V" --part=5CEBA2F17A7
+Progress: Loading project/VGA_controller.qsys
+Progress: Reading input file
+Progress: Adding clk_0 [clock_source 25.1]
+Progress: Parameterizing module clk_0
+Progress: Adding video_pll_0 [altera_up_avalon_video_pll 18.0]
+Progress: Parameterizing module video_pll_0
+Progress: Adding video_vga_controller_0 [altera_up_avalon_video_vga_controller 18.0]
+Progress: Parameterizing module video_vga_controller_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: VGA_controller.video_vga_controller_0: Video Output Stream: Format: 640 x 480 with Color: 10 (bits) x 3 (planes) converted to 8 (bits) per color plane
+Warning: VGA_controller.: You have exported the interface video_vga_controller_0.avalon_vga_sink but not its associated clock interface.  Export the driver of video_vga_controller_0.clk
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate C:\Users\agust\Desktop\uni\deberes\5000\5500\project\VGA_controller.qsys --synthesis=VHDL --output-directory=C:\Users\agust\Desktop\uni\deberes\5000\5500\project\VGA_controller\synthesis --family="Cyclone V" --part=5CEBA2F17A7
+Progress: Loading project/VGA_controller.qsys
+Progress: Reading input file
+Progress: Adding clk_0 [clock_source 25.1]
+Progress: Parameterizing module clk_0
+Progress: Adding video_pll_0 [altera_up_avalon_video_pll 18.0]
+Progress: Parameterizing module video_pll_0
+Progress: Adding video_vga_controller_0 [altera_up_avalon_video_vga_controller 18.0]
+Progress: Parameterizing module video_vga_controller_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: VGA_controller.video_vga_controller_0: Video Output Stream: Format: 640 x 480 with Color: 10 (bits) x 3 (planes) converted to 8 (bits) per color plane
+Warning: VGA_controller.: You have exported the interface video_vga_controller_0.avalon_vga_sink but not its associated clock interface.  Export the driver of video_vga_controller_0.clk
+Info: VGA_controller: Generating "VGA_controller" for QUARTUS_SYNTH
+Info: video_pll_0: "VGA_controller" instantiated altera_up_avalon_video_pll "video_pll_0"
+Info: video_vga_controller_0: Starting Generation of VGA Controller
+Info: video_vga_controller_0: "VGA_controller" instantiated altera_up_avalon_video_vga_controller "video_vga_controller_0"
+Info: rst_controller: "VGA_controller" instantiated altera_reset_controller "rst_controller"
+Info: video_pll: "video_pll_0" instantiated altera_pll "video_pll"
+Info: reset_from_locked: "video_pll_0" instantiated altera_up_avalon_reset_from_locked_signal "reset_from_locked"
+Info: VGA_controller: Done "VGA_controller" with 6 modules, 10 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis
