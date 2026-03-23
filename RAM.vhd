@@ -7,12 +7,11 @@ entity RAM is
         ADDR_SPACE: INTEGER
     );
     port (
-        CLK: in std_logic;
-        data_in: in std_logic_vector(7 downto 0);
-        address_in: in std_logic_vector((ADDR_SPACE-1) downto 0);
-        address_r1: in std_logic_vector((ADDR_SPACE-1) downto 0);
-        address_r2: in std_logic_vector((ADDR_SPACE-1) downto 0);
-        we: in std_logic;
+        CLK, we1, we2: in std_logic;
+        data_in1: in std_logic_vector(7 downto 0);
+        data_in2: in std_logic_vector(7 downto 0);
+        address1: in std_logic_vector((ADDR_SPACE-1) downto 0);
+        address2: in std_logic_vector((ADDR_SPACE-1) downto 0);
         data_out1: out std_logic_vector(7 downto 0);
         data_out2: out std_logic_vector(7 downto 0)
     );
@@ -26,11 +25,14 @@ begin
     process(CLK)
     begin
         if(CLK'event and CLK = '1') then
-            if(we = '1') then
-                ram_block(to_integer( unsigned(address_in))) <= data_in;
+            if(we1 = '1') then
+                ram_block(to_integer( unsigned(address1))) <= data_in1;
             end if;
-            data_out1 <= ram_block(to_integer( unsigned(address_r1)));
-            data_out2 <= ram_block(to_integer( unsigned(address_r2)));
+            if(we2 = '1') then
+                ram_block(to_integer( unsigned(address2))) <= data_in2;
+            end if;
+            data_out1 <= ram_block(to_integer( unsigned(address1)));
+            data_out2 <= ram_block(to_integer( unsigned(address2)));
         end if;
     end process;
 end arch; 

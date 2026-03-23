@@ -11,14 +11,14 @@ entity ImageFilter is
         IMG_HEIGHT: INTEGER := 480;
         IMG_WIDTH: INTEGER := 640;
         RAM_ADDR_SIZE: INTEGER := 20; -- 2^20 = 1048576 > 921600 = (307200)*3 = (640*480)*3
-        ROM_ADDR_SIZE: INTEGER := 2 -- 4 possible filters
     );
     port (
         CLK, filter_en: in std_logic;
         ram_in: in std_logic_vector(7 downto 0);
         rom_in: in std_logic_vector(7 downto 0);
-        ram_addr: out std_logic_vector(3 downto 0);
-        rom_addr: out std_logic_vector(9 downto 0);
+        filter_sel: in std_logic_vector(1 downto 0);
+        ram_addr: out std_logic_vector((RAM_ADDR_SIZE-1) downto 0);
+        rom_addr: out std_logic_vector(5 downto 0);
         data_out: out std_logic_vector(7 downto 0);
         READY: out std_logic
     );

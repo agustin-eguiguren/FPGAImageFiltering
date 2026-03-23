@@ -37,13 +37,11 @@ architecture arch of FILTER_KERNELS is
         0, 0, 0, 
         1, 1, 1
     );
-    signal data_int: integer;
 begin
     process(CLK)
     begin
         if(CLK'event and CLK = '1' and en='1') then
-            data_int <= rom(to_integer( unsigned(address)));
-            data <= std_logic_vector( to_signed(data_int,8));
+            data <= std_logic_vector( to_signed(rom(to_integer( unsigned(address))),8));
         end if;
     end process;
 end arch; 
