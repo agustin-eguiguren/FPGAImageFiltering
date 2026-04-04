@@ -2,16 +2,31 @@ imgName = "hamed.bmp";
 outName = "hamed_bw.mif";
 
 A = imread(imgName);
+J = imresize(A, [160 213]); 
+grayJ = rgb2gray(J); 
+
+whos grayJ;
+
+[rows, cols] = size(grayJ);
+total_pixels = rows * cols;
+
 fileID = fopen(outName, 'w');
 
-for i = 1 : 480
-    for j = 1 : 640 
-        sum = 0;
-        for k = 1 : 3
-            sum = sum + A(i, j, k);
-        end
-        fwrite(fileID, sum/3);
+fprintf(fileID, 'DEPTH = %d;\n', total_pixels);
+fprintf(fileID, 'WIDTH = 8;\n');
+fprintf(fileID, 'ADDRESS_RADIX = DEC;\n');
+fprintf(fileID, 'DATA_RADIX = HEX;\n\n');
+fprintf(fileID, 'CONTENT BEGIN\n');
+
+addr = 0;
+for i = 1:rows
+    for j = 1:cols
+        pixel_val = grayJ(i, j);
+        fprintf(fileID, '    %d : %02X;\n', addr, pixel_val);
+        addr = addr + 1;
     end
 end
 
-fprintf("Done!\n");
+fprintf(fileID, 'END;\n');
+fclose(fileID);
+fprintf("Done!\n Image is: %d*%d\n", size(J,1), size(J,2));

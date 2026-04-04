@@ -12,7 +12,7 @@ entity FILTER_KERNELS is
 end entity FILTER_KERNELS;
 
 --- GAUSSIAN BLUR KERNEL = [[1 2 1],[2 4 2],[1 2 1]]*1/16 (shift right by 4)
---- BLUR = [[1 1 1],[1 1 1],[1 1 1]]
+--- BLUR = [[1 1 1],[1 0 1],[1 1 1]]*1/8
 --- Sharpening = [[0 -1 0],[-1 5 -1],[0 -1 0]]
 --- Horizontal Edge = [[-1 -1 -1],[0 0 0],[1 1 1]]
 
