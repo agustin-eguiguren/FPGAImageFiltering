@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity RAM is
     generic(
-        ADDR_SPACE: INTEGER
+        ADDR_SPACE: INTEGER := 2
     );
     port (
         CLK, we1, we2: in std_logic;

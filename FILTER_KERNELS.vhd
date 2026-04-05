@@ -41,7 +41,7 @@ begin
     process(CLK)
     begin
         if(CLK'event and CLK = '1' and en='1') then
-            data <= std_logic_vector( to_signed(rom(to_integer( unsigned(address))),8));
+            data <= std_logic_vector( to_signed( rom(to_integer( unsigned(address))), 8));
         end if;
     end process;
 end arch; 

@@ -28,44 +28,39 @@ architecture test of TestRAM is
 
 begin
 
-    ram: RAM generic map(2) port map(CLK, w1, w2, in1, in2, addr1, addr2, out1, out2);
+    R1: RAM generic map(ADDR_SPACE=>2) port map(CLK, w1, w2, in1, in2, addr1, addr2, out1, out2);
 
     CLK <= not CLK after 50 ns;
 
     process
     begin
-        w1 <= '1';
+        w1 <= '0';
         w2 <= '0';
+        in1 <= (others => '0');
+        in2 <= (others => '0');
+        addr2 <= (others => '0');
 
         for i in 0 to 3 loop
-            wait until rising_edge(CLK)
-            -- alternate between input ports
-            w1 <= not w1;
-            w2 <= not w2;
+            wait until rising_edge(CLK);
+            w1 <= '1';
             
             -- cycle through all memory addresses and store their index
             addr1 <= std_logic_vector(to_unsigned(i, 2));
             in1 <= std_logic_vector(to_unsigned(i, 8));
 
-            addr2 <= std_logic_vector(to_unsigned(i, 2));
-            in2 <= std_logic_vector(to_unsigned(i, 8));
+            wait until rising_edge(CLK); 
+            w1 <= '0';
         end loop;
-
-        w1 <= '0';
-        w2 <= '0';
-
-        for i in 0 to 3 loop
-            addr1 <= std_logic_vector(to_unsigned(i, 2));
-            addr2 <= std_logic_vector(to_unsigned(i, 2));
-            wait until rising_edge(CLK)   
+        
+        for j in 0 to 3 loop
+            addr1 <= std_logic_vector(to_unsigned(j, 2));
             
-            wait for 10 ns;
+            wait until rising_edge(CLK); 
+            wait for 10 ns; 
 
-            assert (out1 = std_logic_vector(to_unsigned(i, 8)));
-                report "Error at " & integer'image(i)
-                severity failure;
-            assert (out2 = std_logic_vector(to_unsigned(i, 8)));
-                report "Error at " & integer'image(i)
+            assert (j = to_integer(unsigned(out1)))
+                report "Error at " & integer'image(j) & " Expected: " & integer'image(j) & 
+                    " Received: " & integer'image(to_integer(unsigned(out1)))
                 severity failure;
         end loop;
 

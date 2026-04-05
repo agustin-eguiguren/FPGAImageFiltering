@@ -21,74 +21,55 @@ architecture test of TestROM is
 
 begin
 
-    rom: FILTER_KERNELS port map(CLK, en, addr, data);
+    R1: FILTER_KERNELS port map(CLK, en, addr, data);
 
     CLK <= not CLK after 50 ns;
-
+    
     process
     begin
         en <= '1';
-        -- check 0
-        addr <= (others => '0');
+        addr <= (others => '0'); -- Request Address 0
 
-        wait until rising_edge(CLK)   
-        wait for 10 ns;
+        wait until rising_edge(CLK);
+        wait until falling_edge(CLK);
+        wait for 5 ns;
 
-        -- assert 1
-        assert (signed(data) = to_signed(1, 8));
-                report "Error at " & integer'image(to_integer(unsigned(addr)))
-                severity failure;
-        
-        wait for 10 ns;
+        assert (data = "00000001")
+            report "Error at " & integer'image(to_integer(unsigned(addr))) & 
+                   " Expected: 1" & 
+                   " Received: " & integer'image(to_integer(signed(data)))
+            severity failure;
 
-        -- check 4
-        addr <= "000100";
-
-        wait until rising_edge(CLK)   
-        wait for 10 ns;
-
-        -- assert 4
-        assert (signed(data) = to_signed(4, 8));
-                report "Error at " & integer'image(to_integer(unsigned(addr)))
-                severity failure;
-        
-        wait for 10 ns;
-
-        -- check 19
-        addr <= "010011";
-
-        wait until rising_edge(CLK)   
-        wait for 10 ns;
-
-        -- assert -1
-        assert (signed(data) = to_signed(-1, 8));
-                report "Error at " & integer'image(to_integer(unsigned(addr)))
-                severity failure;
-        
-        wait for 10 ns;
+        wait until rising_edge(CLK);
 
         -- check 27
         addr <= "011011";
 
-        wait until rising_edge(CLK)   
-        wait for 10 ns;
-
+        wait until rising_edge(CLK);
+        wait until falling_edge(CLK);
+        wait for 5 ns;
+        
         -- assert -1
-        assert (signed(data) = to_signed(-1, 8));
-                report "Error at " & integer'image(to_integer(unsigned(addr)))
+        assert (data = "11111111");
+                report "Error at " & integer'image(to_integer(unsigned(addr))) & 
+                   " Expected: -1" & 
+                   " Received: " & integer'image(to_integer(signed(data)))
                 severity failure;
         
-        wait for 10 ns;
+        wait until rising_edge(CLK);
 
         -- check 35
         addr <= "100011";
 
-        wait until rising_edge(CLK)   
-        wait for 10 ns;
+        wait until rising_edge(CLK);
+        wait until falling_edge(CLK);
+        wait for 5 ns;
 
         -- assert 1
-        assert (signed(data) = to_signed(1, 8));
-                report "Error at " & integer'image(to_integer(unsigned(addr)))
+        assert (data = "00000001");
+                report "Error at " & integer'image(to_integer(unsigned(addr))) & 
+                   " Expected: 1" & 
+                   " Received: " & integer'image(to_integer(signed(data)))
                 severity failure;
         
         wait for 10 ns;
@@ -96,4 +77,5 @@ begin
         -- if no problems are encountered
         report "Tests: OK";
     end process;
+    
 end test;

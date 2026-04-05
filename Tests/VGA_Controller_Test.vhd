@@ -41,6 +41,7 @@ architecture testbench of VGA_Controller_Test is
 		signal	exti_R_tb : std_logic_vector(7 downto 0); 
 		signal	exti_G_tb : std_logic_vector(7 downto 0);
 		signal	exti_B_tb : std_logic_vector(7 downto 0);
+		signal 	sink_startofpacket: std_logic;
 		
 		constant clk_period : time := 20 ns;
 		
@@ -64,7 +65,7 @@ architecture testbench of VGA_Controller_Test is
 		
 		clk_tb <= not clk_tb after clk_period/2;
 		
-		stim_proc : process()
+		stim_proc : process
 		begin
 			reset_n_tb <= '0';
 			wait for 100ns;

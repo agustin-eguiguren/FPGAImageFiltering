@@ -21,7 +21,7 @@ architecture test of TestMAC is
 
 begin
 
-    mac: MAC port map(CLK, en, init, in1, in2, data);
+    M1: MAC port map(CLK, en, init, in1, in2, data);
 
     CLK <= not CLK after 100 ns;
 
@@ -33,7 +33,7 @@ begin
         in1 <= (others => '0');
         in2 <= (others => '0');            
         
-        wait until rising_edge(CLK)   
+        wait until rising_edge(CLK);   
             
         wait for 10 ns;
 
@@ -49,7 +49,7 @@ begin
             in1 <= std_logic_vector(to_signed(i, 18));
             in2 <= std_logic_vector(to_signed((128-i), 18));
                 
-            wait until rising_edge(CLK)   
+            wait until rising_edge(CLK);   
                 
             wait for 10 ns;
 

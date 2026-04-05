@@ -11,7 +11,7 @@ entity ImageFilter is
     generic (
         IMG_HEIGHT: INTEGER := 480;
         IMG_WIDTH: INTEGER := 640;
-        RAM_ADDR_SIZE: INTEGER := 20 -- 2^20 = 1048576 > 921600 = (307200)*3 = (640*480)*3
+        RAM_ADDR_SIZE: INTEGER := 20; -- 2^20 = 1048576 > 921600 = (307200)*3 = (640*480)*3
     );
     port (
         CLK, filter_en: in std_logic;
@@ -20,7 +20,7 @@ entity ImageFilter is
         filter_sel: in std_logic_vector(1 downto 0);
         ram_out_addr: out std_logic_vector((RAM_ADDR_SIZE-1) downto 0);
         ram_in_addr: out std_logic_vector((RAM_ADDR_SIZE-1) downto 0);
-        ram_out_en: out std_logic;
+        ram_out_en: std_logic;
         rom_addr: out std_logic_vector(5 downto 0);
         rom_r_en: out std_logic;
         data_out: out std_logic_vector(7 downto 0);
@@ -45,8 +45,8 @@ architecture arch of ImageFilter is
     --- addr_Input and addr_Filter are used for RAMs
     --- the external edges of the images are never touched
     --- so both RAMs should be loaded in with the original image
-    signal addr_Input, addr_Filter : std_logic_vector(RAM_ADDR_SIZE-1 downto 0);
-    signal rom_base_addr: integer;
+    signal addr_Input, addr_Filter : std_logic_vector(15 downto 0);
+    signal rom_base_addr: std_logic_vector(5 downto 0);
     signal rom_Input_addr: std_logic_vector(5 downto 0);
 
     signal rom_en, ram_w_en : std_logic;
@@ -57,6 +57,8 @@ architecture arch of ImageFilter is
     signal mac_out: std_logic_vector(17 downto 0);
     signal mac_en, mac_init : std_logic;
 
+
+begin
     component MAC is
     port (
         CLK, en, init: in std_logic;
@@ -64,10 +66,8 @@ architecture arch of ImageFilter is
         data_out: out std_logic_vector(17 downto 0)
     );
     end component;
-
-begin
     
-    M1 : MAC port map(CLK, mac_en, mac_init, mac_in1, mac_in2, mac_out);
+    MAC : MAC port map(CLK, mac_en, mac_in1, mac_in2, mac_out);
 
     process(CLK)
     begin
@@ -80,7 +80,7 @@ begin
     begin 
         rom_en <= '0';
         ram_w_en <= '0';
-        mac_init <= '0';
+        init_mac <= '0';
         mac_en <= '0';
 
         if(current_state = START) then
@@ -92,42 +92,41 @@ begin
                 
                 -- defines what kernel is used
                 case filter_sel is
-                    when "00" => rom_base_addr <= 0;
-                    when "01" => rom_base_addr <= 9;
-                    when "10" => rom_base_addr <= 18;
-                    when "11" => rom_base_addr <= 27;
+                    when "00" => rom_base_addr <= (others => '0');
+                    when "01" => rom_base_addr <= "001001";
+                    when "10" => rom_base_addr <= "010010";
+                    when "11" => rom_base_addr <= "011011";
                 end case;
 
                 next_state <= READ;
             end if;
 
-        elsif (current_state = READ) then
+        else if (current_state = READ) then
             --- set read and write addresses 
 
-            rom_Input_addr <= std_logic_vector( to_unsigned((pos + rom_base_addr),6));
+            rom_Input_addr <= pos + rom_base_addr;
             
             -- considering center pixel, move to 8 neighbour pixels
             case pos is
-                when 0 => addr_Input <= std_logic_vector( to_unsigned(((row - 1)*(IMG_WIDTH) + (col - 1)), RAM_ADDR_SIZE-1));
-                when 1 => addr_Input <= std_logic_vector( to_unsigned(((row - 1)*(IMG_WIDTH) + col), RAM_ADDR_SIZE-1));
-                when 2 => addr_Input <= std_logic_vector( to_unsigned(((row - 1)*(IMG_WIDTH) + (col + 1)), RAM_ADDR_SIZE-1));
-                when 3 => addr_Input <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + (col - 1)), RAM_ADDR_SIZE-1));
-                when 4 => addr_Input <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + col), RAM_ADDR_SIZE-1));
-                when 5 => addr_Input <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + (col + 1)), RAM_ADDR_SIZE-1));
-                when 6 => addr_Input <= std_logic_vector( to_unsigned(((row + 1)*(IMG_WIDTH) + (col - 1)), RAM_ADDR_SIZE-1));
-                when 7 => addr_Input <= std_logic_vector( to_unsigned(((row + 1)*(IMG_WIDTH) + col), RAM_ADDR_SIZE-1));
-                when 8 => addr_Input <= std_logic_vector( to_unsigned(((row + 1)*(IMG_WIDTH) + (col + 1)), RAM_ADDR_SIZE-1));
-            end case;
+                when 0 => addr_Input <= (row - 1)*(IMG_WIDTH) + col - 1
+                when 1 => addr_Input <= (row - 1)*(IMG_WIDTH) + col
+                when 2 => addr_Input <= (row - 1)*(IMG_WIDTH) + col + 1
+                when 3 => addr_Input <= row*(IMG_WIDTH) + col - 1 
+                when 4 => addr_Input <= row*(IMG_WIDTH) + col
+                when 5 => addr_Input <= row*(IMG_WIDTH) + col + 1
+                when 6 => addr_Input <= (row + 1)*(IMG_WIDTH) + col - 1 
+                when 7 => addr_Input <= (row + 1)*(IMG_WIDTH) + col
+                when 8 => addr_Input <= (row + 1)*(IMG_WIDTH) + col + 1
             
             mac_in1 <= (others => '0');
             mac_in2 <= (others => '0');
 
-            addr_Filter <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + col), RAM_ADDR_SIZE-1));
+            addr_Filter <= row*(IMG_WIDTH) + col;
 
             next_state <= OP;
 
-        elsif (current_state = OP) then
-            rom_en <= '1';
+        else if (current_state = OP) then
+            rom_en <= "1";
             
             mac_in1 <= std_logic_vector( to_signed( to_integer( signed(rom_in)), 17));
             mac_in2 <= std_logic_vector( to_signed( to_integer( signed(ram_in)), 17));
@@ -135,33 +134,32 @@ begin
             if(pos = 8) then
                 pos <= 0;
                 next_state <= WRITE;
-            elsif (pos = 0) then
-                mac_init <= '1';
+            else if (pos = 0) then
+                init_mac <= '1';
             else 
-                mac_init <= '0';
+                init_mac <= '0';
                 pos <= pos + 1;
             end if;
         
-        elsif (current_state = WRITE) then
+        else if (current_state = WRITE) then
             ram_w_en <= '1';
 
             -- capping data for write
             -- if result is smaller than 0
-            if(mac_out(17) = '1') then
+            if(data_out_mac(17) = '1') then
                 data_out <= (others => '0');
             -- result is bigger than 255
-            elsif (signed(mac_out) > 255) then
+            else if (signed(data_out_mac) > 255) then
                 data_out <= (others => '1');
             else
-                if (rom_base_addr = 0) then
-                    mac_out <= std_logic_vector(shift_right(unsigned(mac_out), 4));
-                elsif (rom_base_addr = 9) then
-                    mac_out <= std_logic_vector(shift_right(unsigned(mac_out), 3));
+                if (rom_base_addr = (others => '0')) then
+                    data_out_mac <= shift_right(unsigned(data_out_mac), 4);
+                else if (rom_base_addr = "001001") then
+                    data_out_mac <= shift_right(unsigned(data_out_mac), 3);
                 end if;
 
-                data_out <= mac_out(7 downto 0);
-            end if;
-
+                data_out <= data_out_mac(7 downto 0);
+            
             -- col and row should not reach the image's edges
             -- width = IMG_WIDTH -1
             -- edge-1 = width-1
@@ -179,7 +177,7 @@ begin
                 col <= col + 1;
             end if;
         
-        elsif (current_state = DISPLAY) then
+        else if (current_state = DISPLAY) then
             READY <= '1';
 
             if (filter_en = '1') then
@@ -189,10 +187,10 @@ begin
                 
                 -- defines what kernel is used
                 case filter_sel is
-                    when "00" => rom_base_addr <= 0;
-                    when "01" => rom_base_addr <= 9;
-                    when "10" => rom_base_addr <= 18;
-                    when "11" => rom_base_addr <= 27;
+                    when "00" => rom_base_addr <= (others => '0');
+                    when "01" => rom_base_addr <= "001001";
+                    when "10" => rom_base_addr <= "010010";
+                    when "11" => rom_base_addr <= "011011";
                 end case;
 
                 next_state <= READ;
@@ -204,7 +202,7 @@ begin
 
         ram_out_addr <= addr_Filter;
         ram_in_addr <= addr_Input;
-        rom_addr <= rom_Input_addr;
+        rom_add <= rom_Input_addr;
         rom_r_en <= rom_en;
         ram_out_en <= ram_w_en;
 

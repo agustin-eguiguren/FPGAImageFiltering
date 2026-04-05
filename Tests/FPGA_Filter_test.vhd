@@ -5,9 +5,10 @@ use ieee.numeric_std.all;
 entity FPGA_Filter_Test is
 end entity FPGA_Filter_Test;
 
-archiecture testbench of FPGA_Filter_Test is
+architecture testbench of FPGA_Filter_Test is
 	component Main_FPGA_Filter is 
-	port (clk : in std_logic;
+	port (
+			clk : in std_logic;
 			start : in std_logic;
 			filter_select : in std_logic;
 			reset : in std_logic;
@@ -17,7 +18,8 @@ archiecture testbench of FPGA_Filter_Test is
 			VGA_HS : out std_logic;
 			VGA_VS : out std_logic;
 			VGA_blank : out std_logic;
-			done : out std_logic);
+			done : out std_logic
+		);
 			
 	end component Main_FPGA_Filter;
 	
