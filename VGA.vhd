@@ -78,10 +78,8 @@ vga0 : component VGA_controller
                      else '0';			
 							
 	pixel_addr <= std_logic_vector(
-		 to_unsigned(
-			  (counter_V - 33) * 640 + (counter_H - 47), 20)
-		 ) when (counter_H >= 47 and counter_H < 688
-					and counter_V >= 33 and counter_V < 513)
+		 to_unsigned(((counter_V - 33)/3) * 213 + ((counter_H - 47) /3), 20) 
+		 when (counter_H >= 47 and counter_H < 687 and counter_V >= 33 and counter_V < 513)
 		 else (others => '0');
 
 process(VGA_HS_S, clk_25)
