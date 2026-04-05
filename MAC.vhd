@@ -12,19 +12,20 @@ entity MAC is
 end entity MAC;
 
 architecture arch of MAC is
-    signal sum, product: signed (17 downto 0) := (others => '0');
+    signal sum: signed (17 downto 0) := (others => '0');
+    signal product: signed (35 downto 0) := (others => '0');
 begin
     data_out <= std_logic_vector(sum);
     product <= signed(data_1) * signed(data_2);
     
     
-    process(CLK)
+    process(CLK, en)
     begin
         if(CLK'event and CLK='1' and en = '1') then
             if (init = '1') then
-                sum <= product;
+                sum <= product(17 downto 0);
             else
-                sum <= sum + product;
+                sum <= sum + product(17 downto 0);
             end if;
               
         end if;

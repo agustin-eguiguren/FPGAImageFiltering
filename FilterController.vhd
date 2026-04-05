@@ -4,7 +4,7 @@ use IEEE.numeric_std.all;
 
 entity FilterController is
     port ( 
-	 CLOCK_50: in std_logic;
+	CLOCK_50: in std_logic;
     KEY: in std_logic_vector(3 downto 0);
     SW: in std_logic_vector(9 downto 0);
     VGA_CLK        : out std_logic;                                        -- video_vga_controller_0_external_interface.CLK
@@ -29,7 +29,7 @@ signal START, RESETb: std_logic;
 signal FILTER_SEL: std_logic_vector(1 downto 0);
 signal buffer_select : std_logic := '0';
 
-signal address1_a : std_logic_vector(19 downto 0);
+signal address1_a : std_logic_vector(15 downto 0);
 signal dataout1_a : std_logic_vector(7 downto 0);
 
 signal we1_b : std_logic:= '0';
@@ -53,7 +53,9 @@ signal filter_we : std_logic;
 signal vga_pixel_addr : std_logic_vector(19 downto 0);
 signal vga_pixel_data : std_logic_vector(7 downto 0);
 
-type state_type is (IDLE, FILTERING, DISPLAY);
+signal clk_25 : std_logic := '0';
+
+type state_type is (IDLE, DISPLAY);
 signal current_state : state_type := IDLE;
 
 -- component definitions
@@ -62,6 +64,13 @@ signal current_state : state_type := IDLE;
 -- ONE ROMs to sotre filter kernel X
 -- IMAGE FILTER
 -- VGA CONTROLLER
+
+component Counter
+		generic( N: natural);
+		port(CLR, CLK, EN: std_logic;
+			Q: out std_logic_vector(N-1 downto 0));
+	end component;
+
 
 component RAM_IP is
 	port
@@ -79,7 +88,7 @@ component RAM_IP is
 	);
 end component;
 	
-component FILTER_KERNALS is
+component FILTER_KERNELS is
 	port ( CLK, en: in std_logic;
 			 address: in std_logic_vector(5 downto 0);
 			 data: out std_logic_vector(7 downto 0));
@@ -103,6 +112,7 @@ end component;
 
 component VGA is
 	port ( CLOCK_50       : in  std_logic;             --                                       clk.clk
+			 clk_25         : in  std_logic;
 			 KEY            : in  std_logic_vector(3 downto 0);             --                                     reset.reset_n
 			 pixel_data  	: in  std_logic_vector(7 downto 0);
 			 pixel_addr  	: out std_logic_vector(19 downto 0);
@@ -122,8 +132,8 @@ begin
 		port map (
 			address_a => address1_a,
 			address_b => (others => '0'),
-			clock_a => VGA_CLK,
-			clock_b => CLOCK_50,
+			clock_a => clk_25,
+			clock_b => clk_25,
 			data_a => (others => '0'),
 			data_b => (others => '0'),
 			wren_a => '0',
@@ -132,7 +142,7 @@ begin
 			q_b => open
 		);
 			
---	filter_kernal : component FILTER_KERNALS
+--	ROM : component FILTER_KERNELS
 --		port map (
 --			CLK => CLOCK_50,
 --			en => kernal_en,
@@ -155,11 +165,12 @@ begin
 --        data_out   => datain1_b,
 --        READY      => filter_ready);
 --			
-	vga : component VGA
+	vga1 : component VGA
 		port map (
 			CLOCK_50 => CLOCK_50,
+			clk_25 => clk_25,
 			KEY => KEY,
-			pixel_data  => dataout1_b,
+			pixel_data  => dataout1_a,
 			pixel_addr  => vga_pixel_addr,
 			VGA_CLK => VGA_CLK,
 			VGA_HS => VGA_HS,
@@ -171,12 +182,22 @@ begin
 			VGA_B => VGA_B);
 			
 	 address1_a <= vga_pixel_addr(15 downto 0);
+
 			
     RESETb <= KEY(0);
     START <= KEY(1);
     FILTER_SEL <= SW(1 downto 0);
 	 kernal_en <= filter_en;
+
+		
+	process(CLOCK_50)
+	begin
+		if (CLOCK_50' event and CLOCK_50='1') then
+				clk_25<=not clk_25;
+		end if;
+	end process;
 	 
+	
 	 process(CLOCK_50)
 	 begin
 		if CLOCK_50'event and CLOCK_50 = '1' then
