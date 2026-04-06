@@ -24,7 +24,8 @@ entity ImageFilter is
         rom_addr: out std_logic_vector(5 downto 0);
         rom_r_en: out std_logic;
         data_out: out std_logic_vector(7 downto 0);
-        READY: out std_logic
+        READY: out std_logic;
+        FilterLED: out std_logic_vector(9 downto 0)
     );
 end entity ImageFilter;
 
@@ -81,12 +82,17 @@ begin
     
     M1 : MAC port map(CLK, mac_en, mac_init, mac_in1, mac_in2, mac_out);
 
+    
     process(CLK)
     begin
         if(CLK'event and CLK = '1') then
             current_state <= next_state;
+            row <= next_row;
+            col <= next_col;
+            pos <= next_pos; -- Update pos here, safely.
         end if;
     end process;
+
 
     process(current_state, filter_en, filter_sel, pos, row, col, rom_in, ram_in, mac_out, rom_base_addr, result, addr_Filter, addr_Input, rom_Input_addr, rom_en, ram_w_en, next_row, next_col, next_pos)
     begin 
@@ -104,6 +110,7 @@ begin
         -- defaulting data out to 0 when not writing
         data_out  <= (others => '0');
 
+        FilterLED <= (others => '0');
         case current_state is
         
             when START =>
@@ -123,6 +130,8 @@ begin
 
                     next_state <= READ;
                 end if;
+
+                FilterLED(9) <= '1';
 
             when READ =>
                 -- set read and write addresses 
@@ -149,6 +158,8 @@ begin
 
                 next_state <= INFO_WAIT;
 
+                FilterLED(8) <= '1'; 
+
             when INFO_WAIT =>
                 rom_en <= '1';
 
@@ -160,17 +171,22 @@ begin
                 
                 -- we are using 8-bit output from ROM and RAM for 18 bit input for MAC
                 mac_in1 <= std_logic_vector( resize( signed(rom_in), mac_in1'length));
-                mac_in2 <= std_logic_vector( resize( signed(ram_in), mac_in1'length));
+                mac_in2 <= std_logic_vector( resize( unsigned(ram_in), mac_in1'length));
 
                 if(pos = 8) then
-                    pos <= 0;
+                    next_pos <= 0;
                     next_state <= WRITE;
                 elsif (pos = 0) then
                     mac_init <= '1';
+                    next_pos <= pos + 1;
+                    next_state <= READ;
                 else 
                     mac_init <= '0';
                     next_pos <= pos + 1;
+                    next_state <= READ;
                 end if;
+                
+                FilterLED(7) <= '1';
             
             when WRITE =>
                 ram_w_en <= '1';
@@ -184,14 +200,13 @@ begin
                     data_out <= (others => '1');
                 else
                     if (rom_base_addr = GAUSS_BLUR) then
-                        result <= std_logic_vector(shift_right(unsigned(mac_out), GAUSS_SHIFT));
+                        data_out <= std_logic_vector(shift_right(unsigned(mac_out), GAUSS_SHIFT))(7 downto 0);
                     elsif (rom_base_addr = AVG_BLUR) then
-                        result <= std_logic_vector(shift_right(unsigned(mac_out), AVG_SHIFT));
+                        data_out <= std_logic_vector(shift_right(unsigned(mac_out), AVG_SHIFT))(7 downto 0);
                     else
-                        result <= mac_out;
+                        data_out <= mac_out(7 downto 0);
                     end if;
 
-                    data_out <= result(7 downto 0);
                 end if;
 
                 -- col and row should not reach the image's edges
@@ -206,10 +221,14 @@ begin
                         next_state <= DISPLAY;
                     else
                         next_row <= row + 1;
+                        next_state <= READ;
                     end if;
                 else 
-                    Next_col <= col + 1;
+                    next_col <= col + 1;
+                    next_state <= READ;
                 end if;
+                
+                FilterLED(6) <= '1';
             
             when DISPLAY =>
                 READY <= '1';
@@ -229,6 +248,8 @@ begin
 
                     next_state <= READ;
                 end if;
+
+                FilterLED(5) <= '1';
             
             when others =>
                 next_state <= START;
@@ -240,8 +261,6 @@ begin
         rom_addr <= rom_Input_addr;
         rom_r_en <= rom_en;
         ram_out_en <= ram_w_en;
-        row <= next_row;
-        col <= next_col;
 
     end process;
 end arch;
