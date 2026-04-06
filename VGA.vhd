@@ -7,7 +7,7 @@ entity VGA is
 		CLOCK_50, clk_25       : in  std_logic;             --                                       clk.clk
 		KEY            : in  std_logic_vector(3 downto 0);  		--                                     reset.reset_n
 		pixel_data  	: in  std_logic_vector(7 downto 0);
-      pixel_addr  	: out std_logic_vector(19 downto 0);
+      pixel_addr  	: out std_logic_vector(15 downto 0);
 		VGA_CLK        : out std_logic;                                        -- video_vga_controller_0_external_interface.CLK
 		VGA_HS         : out std_logic;                                        --                                          .HS
 		VGA_VS         : out std_logic;                                        --                                          .VS
@@ -26,7 +26,7 @@ signal counter_H, counter_V : integer:=0;---640*480
 
 signal pixel_data_sync_50 : std_logic_vector(7 downto 0);
 
-signal address: std_logic_vector(19 downto 0);
+signal address: std_logic_vector(15 downto 0);
 
 signal counter_H_d, counter_V_d : integer := 0;
 
@@ -126,7 +126,7 @@ vga0 : component VGA_controller
             end if;
         end if;
 
-        address <= std_logic_vector(to_unsigned(v_scaled * IMG_W + h_scaled, 20));
+        address <= std_logic_vector(to_unsigned(v_scaled * IMG_W + h_scaled, 16));
 		end if;
 	end process;			
 
