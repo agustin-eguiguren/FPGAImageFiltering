@@ -74,7 +74,7 @@ BEGIN
 		clock_enable_output_a => "BYPASS",
 		clock_enable_output_b => "BYPASS",
 		indata_reg_b => "CLOCK1",
-		init_file => "../../../../../../Documents/GitHub/FPGAImageFiltering/hamed_bw.mif",
+		init_file => "../../../../../../Documents/GitHub/FPGAImageFiltering/sample.mif",
 		intended_device_family => "Cyclone V",
 		lpm_type => "altsyncram",
 		numwords_a => 65536,

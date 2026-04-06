@@ -238,13 +238,13 @@ begin
 						filter_en <= '0';
 						buffer_select <= '0';
 						
-						if (oldSTART = '0') and (START = '1') then
+						if (oldSTART = '1') and (START = '0') then
 							current_state <= FILTERING;
 						end if;
 
 					when FILTERING =>
 						filter_en <= '1';
-						
+
 						if filter_ready = '1' then
 							buffer_select <= not buffer_select;
 							current_state <= DISPLAY;
@@ -254,7 +254,7 @@ begin
 					when DISPLAY =>
 						filter_en <= '0';
 
-						if (oldSTART = '0') and (START = '1') then
+						if (oldSTART = '1') and (START = '0') then
 							current_state <= FILTERING;
 						end if;
 

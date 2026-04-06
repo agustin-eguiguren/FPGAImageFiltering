@@ -1,5 +1,5 @@
-imgName = "hamed.bmp";
-outName = "hamed_bw.mif";
+imgName = "sample_img.jpg";
+outName = "sample.mif";
 
 A = imread(imgName);
 J = imresize(A, [160 213]); 
