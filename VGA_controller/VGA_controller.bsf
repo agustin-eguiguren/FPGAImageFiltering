@@ -22,7 +22,7 @@ on the Quartus Prime software download page.
 (header "symbol" (version "1.1"))
 (symbol
 	(rect 0 0 656 400)
-	(text "VGA_controller" (rect 282 -1 346 11)(font "Arial" (font_size 10)))
+	(text "VGA_CONTROLLER" (rect 265 -1 364 11)(font "Arial" (font_size 10)))
 	(text "inst" (rect 8 384 20 396)(font "Arial" ))
 	(port
 		(pt 0 72)
@@ -149,7 +149,7 @@ on the Quartus Prime software download page.
 		(text "R" (rect 293 331 592 672)(font "Arial" (color 0 0 0)))
 		(text "G" (rect 293 347 592 704)(font "Arial" (color 0 0 0)))
 		(text "B" (rect 293 363 592 736)(font "Arial" (color 0 0 0)))
-		(text " VGA_controller " (rect 584 384 1264 778)(font "Arial" ))
+		(text " VGA_CONTROLLER " (rect 555 384 1206 778)(font "Arial" ))
 		(line (pt 288 32)(pt 368 32)(line_width 1))
 		(line (pt 368 32)(pt 368 384)(line_width 1))
 		(line (pt 288 384)(pt 368 384)(line_width 1))

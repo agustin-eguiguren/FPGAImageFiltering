@@ -1,5 +1,5 @@
 `timescale 1ns/10ps
-module  VGA_controller_video_pll_0_video_pll(
+module  VGA_CONTROLLER_video_pll_0_video_pll(
 
 	// interface 'refclk'
 	input wire refclk,

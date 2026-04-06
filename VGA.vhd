@@ -15,7 +15,7 @@ entity VGA is
 		VGA_SYNC_N     : out std_logic;                                        --                                          .SYNC
 		VGA_R          : out std_logic_vector(7 downto 0);                     --                                          .R
 		VGA_G          : out std_logic_vector(7 downto 0);                     --                                          .G
-		VGA_B          : out std_logic_vector(7 downto 0)                      --                                          .B
+		VGA_B          : out std_logic_vector(7 downto 0)            --                                          .B
 	);
 end entity VGA;
 
@@ -26,6 +26,21 @@ signal counter_H, counter_V : integer:=0;---640*480
 
 signal pixel_data_sync_50 : std_logic_vector(7 downto 0);
 
+signal address: std_logic_vector(19 downto 0);
+
+signal counter_H_d, counter_V_d : integer := 0;
+
+signal h_scaled, v_scaled : integer range 0 to 255 := 0;
+signal h_count_scaled, v_count_scaled : integer range 0 to 3 := 0;
+
+constant IMG_W    : integer := 213;
+constant IMG_H    : integer := 160;
+constant DISP_W   : integer := 640;  
+constant DISP_H   : integer := 480;  
+constant H_START  : integer := 48;   
+constant H_END    : integer := H_START + DISP_W - 1; 
+constant V_START  : integer := 33;   
+constant V_END    : integer := V_START + DISP_H - 1; 
 
 component VGA_controller is
 	port (
@@ -73,16 +88,52 @@ vga0 : component VGA_controller
 	VGA_CLK <= vga_clk_s;
 	
 				
-	vga_startofpacket<= '1' when (counter_H=0 and counter_v=0)
-							else '0';
-							
-	vga_endofpacket<= '1'	when (counter_H=703 and counter_v=522)
-                     else '0';			
-							
-	pixel_addr <= std_logic_vector(
-		 to_unsigned(((counter_V - 33)/3) * 213 + ((counter_H - 47) /3), 20))
-		 when (counter_H >= 47 and counter_H < 687 and counter_V >= 33 and counter_V < 513)
-		 else (others => '0');
+	vga_startofpacket <= '1' when (counter_H_d = H_START and counter_V_d = V_START) else '0';
+	vga_endofpacket   <= '1' when (counter_H_d = H_END   and counter_V_d = V_END)   else '0';
+
+
+	process(clk_25)
+	begin
+		if rising_edge(clk_25) then
+        -- HORIZONTAL SCALING (Updates every pixel clock)
+        if counter_H >= H_START and counter_H < H_END then
+            if h_count_scaled = 2 then -- Hold each pixel for 3 clocks (0,1,2)
+                h_count_scaled <= 0;
+                if h_scaled < (IMG_W - 1) then
+                    h_scaled <= h_scaled + 1;
+                end if;
+            else
+                h_count_scaled <= h_count_scaled + 1;
+            end if;
+        else
+            -- Reset horizontal address during blanking
+            h_count_scaled <= 0;
+            h_scaled <= 0;
+        end if;
+
+        
+        if counter_H = 703 then 
+            if counter_V >= V_START and counter_V < V_END then
+                if v_count_scaled = 2 then 
+                    v_count_scaled <= 0;
+                    if v_scaled < (IMG_H - 1) then
+                        v_scaled <= v_scaled + 1;
+                    end if;
+                else
+                    v_count_scaled <= v_count_scaled + 1;
+                end if;
+            else
+                v_count_scaled <= 0;
+                v_scaled <= 0;
+            end if;
+        end if;
+
+        address <= std_logic_vector(to_unsigned(v_scaled * IMG_W + h_scaled, 20));
+			--h_scaled <= ((counter_H-48) mod 213)+1;
+			--v_scaled <= ((counter_V-33) mod 160)+1;
+			--address <= std_logic_vector(to_unsigned(v_scaled * IMG_W + h_scaled, 20));
+		end if;
+	end process;			
 
 process(VGA_HS_S, clk_25)
 begin
@@ -109,39 +160,21 @@ process(clk_25)
 begin
 	if (clk_25' event and clk_25='1') then
 		pixel_data_sync_50 <= pixel_data;
+		pixel_addr <= address;
+		counter_H_d <= counter_H;
+		counter_V_d <= counter_V;
 	end if;
 
 end process;
 
 
---process(clk_25)
---begin
---	if (clk_25'event and clk_25 = '1') then
---		if (counter_H >= 48 and counter_H < 688 and counter_V >= 33 and counter_V < 513) then
---			-- Simple stable test pattern (vertical & horizontal bars)
---			-- Red = horizontal position, Green = vertical position, Blue = combined
---			VGA_R_S <= std_logic_vector(to_unsigned(((counter_H - 48) mod 256), 8));
---			VGA_G_S <= std_logic_vector(to_unsigned(((counter_V - 33) mod 256), 8));
---			VGA_B_S <= std_logic_vector(to_unsigned((((counter_H - 48) + (counter_V - 33)) mod 256), 8));
---			vga_valid <= '1';
---		else
---			VGA_R_S <= (others => '0');
---			VGA_G_S <= (others => '0');
---			VGA_B_S <= (others => '0');
---			vga_valid <= '0';
---		end if;
---	end if;
---end process;
-
-
-
 process(clk_25)
 begin
 	if (clk_25'event and clk_25 = '1') then
-		if (counter_H >= 48 and counter_H < 688 and counter_V >= 33 and counter_V < 513) then
-			VGA_R_S <= pixel_data;
-			VGA_G_S <= pixel_data;
-			VGA_B_S <= pixel_data;
+		if (counter_H >= H_START and counter_H <= H_END and counter_V >= V_START and counter_V <= V_END) then
+			VGA_R_S <= pixel_data_sync_50;
+			VGA_G_S <= pixel_data_sync_50;
+			VGA_B_S <= pixel_data_sync_50;
 			vga_valid <= '1';
 		else
 			VGA_R_S <= (others => '0');

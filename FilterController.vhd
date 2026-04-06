@@ -14,7 +14,8 @@ entity FilterController is
     VGA_SYNC_N     : out std_logic;                                        --                                          .SYNC
     VGA_R          : out std_logic_vector(7 downto 0);                     --                                          .R
     VGA_G          : out std_logic_vector(7 downto 0);                     --                                          .G
-    VGA_B          : out std_logic_vector(7 downto 0)
+    VGA_B          : out std_logic_vector(7 downto 0);
+	LEDR : out  std_logic_vector(9 downto 0) 
     );
 end entity FilterController;
 
@@ -57,6 +58,8 @@ signal clk_25 : std_logic := '0';
 
 type state_type is (IDLE, DISPLAY);
 signal current_state : state_type := IDLE;
+
+signal testVGA_HS: std_logic;
 
 -- component definitions
 
@@ -173,7 +176,7 @@ begin
 			pixel_data  => dataout1_a,
 			pixel_addr  => vga_pixel_addr,
 			VGA_CLK => VGA_CLK,
-			VGA_HS => VGA_HS,
+			VGA_HS => testVGA_HS,
 			VGA_VS => VGA_VS,
 			VGA_BLANK_N => VGA_BLANK_N,
 			VGA_SYNC_N => VGA_SYNC_N,
@@ -182,7 +185,9 @@ begin
 			VGA_B => VGA_B);
 			
 	 address1_a <= vga_pixel_addr(15 downto 0);
-
+	
+	LEDR(0) <= testVGA_HS; -- CORRECT LATERRR
+	VGA_HS <= testVGA_HS;
 			
     RESETb <= KEY(0);
     START <= KEY(1);

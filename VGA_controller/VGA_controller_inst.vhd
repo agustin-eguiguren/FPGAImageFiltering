@@ -1,4 +1,4 @@
-	component VGA_controller is
+	component VGA_CONTROLLER is
 		port (
 			clk_clk                                              : in  std_logic                     := 'X';             -- clk
 			reset_reset_n                                        : in  std_logic                     := 'X';             -- reset_n
@@ -16,9 +16,9 @@
 			video_vga_controller_0_external_interface_G          : out std_logic_vector(7 downto 0);                     -- G
 			video_vga_controller_0_external_interface_B          : out std_logic_vector(7 downto 0)                      -- B
 		);
-	end component VGA_controller;
+	end component VGA_CONTROLLER;
 
-	u0 : component VGA_controller
+	u0 : component VGA_CONTROLLER
 		port map (
 			clk_clk                                              => CONNECTED_TO_clk_clk,                                              --                                       clk.clk
 			reset_reset_n                                        => CONNECTED_TO_reset_reset_n,                                        --                                     reset.reset_n

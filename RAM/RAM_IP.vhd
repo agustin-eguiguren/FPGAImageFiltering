@@ -222,8 +222,8 @@ END SYN;
 -- Retrieval info: CONNECT: q_a 0 0 8 0 @q_a 0 0 8 0
 -- Retrieval info: CONNECT: q_b 0 0 8 0 @q_b 0 0 8 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL RAM_IP.vhd TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL RAM_IP.inc FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL RAM_IP.inc TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL RAM_IP.cmp TRUE
--- Retrieval info: GEN_FILE: TYPE_NORMAL RAM_IP.bsf FALSE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL RAM_IP.bsf TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL RAM_IP_inst.vhd FALSE
 -- Retrieval info: LIB_FILE: altera_mf

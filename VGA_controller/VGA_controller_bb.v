@@ -1,5 +1,5 @@
 
-module VGA_controller (
+module VGA_CONTROLLER (
 	clk_clk,
 	reset_reset_n,
 	video_vga_controller_0_avalon_vga_sink_data,

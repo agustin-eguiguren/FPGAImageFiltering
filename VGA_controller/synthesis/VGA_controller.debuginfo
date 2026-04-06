@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<EnsembleReport name="VGA_controller" kind="system" version="25.1" fabric="QSYS">
+<EnsembleReport name="VGA_CONTROLLER" kind="system" version="25.1" fabric="QSYS">
  <!-- Format version 25.1 1129 (Future versions may contain additional information.) -->
- <!-- 2026.03.06.18:26:30 -->
+ <!-- 2026.04.05.21:48:05 -->
  <!-- A collection of modules and connections -->
  <parameter name="clockCrossingAdapter">
   <type>com.altera.sopcmodel.ensemble.EClockAdapter</type>
@@ -53,7 +53,7 @@
  </parameter>
  <parameter name="generationId">
   <type>int</type>
-  <value>1772834185</value>
+  <value>1775434665</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>true</visible>
@@ -815,7 +815,7 @@ parameters are a RESULT of the module parameters. -->
 the requested settings for a module instance. -->
   <parameter name="board">
    <type>java.lang.String</type>
-   <value>DE1-SoC</value>
+   <value>DE10-Standard</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -1906,5 +1906,5 @@ parameters are a RESULT of the module parameters. -->
   <version>25.1</version>
  </plugin>
  <reportVersion>25.1 1129</reportVersion>
- <uniqueIdentifier>FE54F623FED80000019CC526E876</uniqueIdentifier>
+ <uniqueIdentifier>6CF6DA40CBDE0000019D60272CD0</uniqueIdentifier>
 </EnsembleReport>

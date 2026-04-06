@@ -25,7 +25,7 @@
  *                                                                            *
  ******************************************************************************/
 
-module VGA_controller_video_vga_controller_0 (
+module VGA_CONTROLLER_video_vga_controller_0 (
 	// Inputs
 	clk,
 	reset,

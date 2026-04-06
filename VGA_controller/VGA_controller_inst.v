@@ -1,4 +1,4 @@
-	VGA_controller u0 (
+	VGA_CONTROLLER u0 (
 		.clk_clk                                              (<connected-to-clk_clk>),                                              //                                       clk.clk
 		.reset_reset_n                                        (<connected-to-reset_reset_n>),                                        //                                     reset.reset_n
 		.video_vga_controller_0_avalon_vga_sink_data          (<connected-to-video_vga_controller_0_avalon_vga_sink_data>),          //    video_vga_controller_0_avalon_vga_sink.data
