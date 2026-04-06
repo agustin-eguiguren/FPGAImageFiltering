@@ -95,9 +95,8 @@ vga0 : component VGA_controller
 	process(clk_25)
 	begin
 		if rising_edge(clk_25) then
-        -- HORIZONTAL SCALING (Updates every pixel clock)
         if counter_H >= H_START and counter_H < H_END then
-            if h_count_scaled = 2 then -- Hold each pixel for 3 clocks (0,1,2)
+            if h_count_scaled = 2 then 
                 h_count_scaled <= 0;
                 if h_scaled < (IMG_W - 1) then
                     h_scaled <= h_scaled + 1;
@@ -106,7 +105,6 @@ vga0 : component VGA_controller
                 h_count_scaled <= h_count_scaled + 1;
             end if;
         else
-            -- Reset horizontal address during blanking
             h_count_scaled <= 0;
             h_scaled <= 0;
         end if;
@@ -129,9 +127,6 @@ vga0 : component VGA_controller
         end if;
 
         address <= std_logic_vector(to_unsigned(v_scaled * IMG_W + h_scaled, 20));
-			--h_scaled <= ((counter_H-48) mod 213)+1;
-			--v_scaled <= ((counter_V-33) mod 160)+1;
-			--address <= std_logic_vector(to_unsigned(v_scaled * IMG_W + h_scaled, 20));
 		end if;
 	end process;			
 

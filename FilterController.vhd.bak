@@ -33,10 +33,10 @@ signal buffer_select : std_logic := '0';
 signal address1_a : std_logic_vector(15 downto 0);
 signal dataout1_a : std_logic_vector(7 downto 0);
 
-signal we1_b, we1_a : std_logic:= '0';
+signal we1_b : std_logic:= '0';
 signal datain1_b : std_logic_vector(7 downto 0);
 signal address1_b : std_logic_vector(19 downto 0);
-signal address2_b, address2_a : std_logic_vector(19 downto 0);
+signal address2_b : std_logic_vector(19 downto 0);
 signal dataout2_b : std_logic_vector(7 downto 0);
 
 signal kernal_en : std_logic := '0';
@@ -51,12 +51,12 @@ signal filter_write_addr : std_logic_vector(19 downto 0);
 signal filter_write_data : std_logic_vector(7 downto 0);
 signal filter_we : std_logic;
 
-signal vga_pixel_addr, vga_pixel_addr_to_ram : std_logic_vector(19 downto 0);
+signal vga_pixel_addr : std_logic_vector(19 downto 0);
 signal vga_pixel_data : std_logic_vector(7 downto 0);
 
 signal clk_25 : std_logic := '0';
 
-type state_type is (IDLE, FILTERING, DISPLAY);
+type state_type is (IDLE, DISPLAY);
 signal current_state : state_type := IDLE;
 
 signal testVGA_HS: std_logic;
@@ -145,29 +145,29 @@ begin
 			q_b => open
 		);
 			
-	ROM : component FILTER_KERNELS
-		port map (
-			CLK => CLOCK_50,
-			en => kernal_en,
-			address => kernal_address,
-			data => kernal_data);
+--	ROM : component FILTER_KERNELS
+--		port map (
+--			CLK => CLOCK_50,
+--			en => kernal_en,
+--			address => kernal_address,
+--			data => kernal_data);
 			
-	img_filter : component ImageFilter
-    generic map(
-        IMG_HEIGHT    => 480,
-        IMG_WIDTH     => 640,
-        RAM_ADDR_SIZE => 20)
-    port map(
-        CLK        => CLOCK_50,
-        filter_en  => filter_en,
-        ram_in     => dataout1_a,
-        rom_in     => kernal_data,
-        filter_sel => FILTER_SEL(1 downto 0),
-        ram_addr   => filter_read_addr,
-        rom_addr   => kernal_address,
-        data_out   => datain1_b,
-        READY      => filter_ready);
-			
+--	img_filter : component ImageFilter
+--    generic map(
+--        IMG_HEIGHT    => 480,
+--        IMG_WIDTH     => 640,
+--        RAM_ADDR_SIZE => 20)
+--    port map(
+--        CLK        => CLOCK_50,
+--        filter_en  => filter_en,
+--        ram_in     => dataout1_a,
+--        rom_in     => kernal_data,
+--        filter_sel => FILTER_SEL(1 downto 0),
+--        ram_addr   => filter_read_addr,
+--        rom_addr   => kernal_address,
+--        data_out   => datain1_b,
+--        READY      => filter_ready);
+--			
 	vga1 : component VGA
 		port map (
 			CLOCK_50 => CLOCK_50,
@@ -238,11 +238,11 @@ begin
 			end if;
 		end if;
 end process;
-	address1_a <= filter_read_addr  when buffer_select = '0' else filter_write_addr;
-	we1_a      <= '0'               when buffer_select = '0' else filter_we;
-
-	address1_b <= filter_write_addr when buffer_select = '0' else filter_read_addr;
-	we1_b      <= filter_we         when buffer_select = '0' else '0';
-	
-	vga_pixel_addr_to_ram <= address2_b when buffer_select = '0' else address2_a;
+--	address1_a <= filter_read_addr  when buffer_select = '0' else filter_write_addr;
+--	we1_a      <= '0'               when buffer_select = '0' else filter_we;
+--
+--	address1_b <= filter_write_addr when buffer_select = '0' else filter_read_addr;
+--	we1_b      <= filter_we         when buffer_select = '0' else '0';
+--	
+--	vga_pixel_addr_to_ram <= address2_b when buffer_select = '0' else address2_a;
 end arch;
