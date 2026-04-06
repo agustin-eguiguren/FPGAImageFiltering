@@ -59,7 +59,7 @@ architecture arch of ImageFilter is
     -- the external edges of the images are never touched
     -- so both RAMs should be loaded in with the original image
     signal addr_Input, addr_Filter : std_logic_vector(RAM_ADDR_SIZE-1 downto 0);
-    signal rom_base_addr: integer;
+    
     signal rom_Input_addr: std_logic_vector(5 downto 0);
 
     signal rom_en, ram_w_en : std_logic;
@@ -93,7 +93,8 @@ begin
     end process;
 
 
-    process(current_state, filter_en, filter_sel, pos, row, col, rom_in, ram_in, mac_out, rom_base_addr, result, addr_Filter, addr_Input, rom_Input_addr, rom_en, ram_w_en, next_row, next_col, next_pos)
+    process(current_state, filter_en, filter_sel, pos, row, col, rom_in, ram_in, mac_out, result, addr_Filter, addr_Input, rom_Input_addr, rom_en, ram_w_en, next_row, next_col, next_pos)
+            variable rom_base_addr: integer;
     begin 
         -- default values
         rom_en <= '0';
@@ -137,10 +138,10 @@ begin
                     
                     -- defines what kernel is used
                     case filter_sel is
-                        when "00" => rom_base_addr <= GAUSS_BLUR;
-                        when "01" => rom_base_addr <= AVG_BLUR;
-                        when "10" => rom_base_addr <= SHARP_FILTER;
-                        when "11" => rom_base_addr <= EDGE_FILTER;
+                        when "00" => rom_base_addr := GAUSS_BLUR;
+                        when "01" => rom_base_addr := AVG_BLUR;
+                        when "10" => rom_base_addr := SHARP_FILTER;
+                        when "11" => rom_base_addr := EDGE_FILTER;
                     end case;
 
                     next_state <= READ;
@@ -169,6 +170,7 @@ begin
 
             when OP =>
                 rom_en <= '1';
+                mac_en <= '1';
                 
                 -- we are using 8-bit output from ROM and RAM for 18 bit input for MAC
                 mac_in1 <= std_logic_vector( resize( signed(rom_in), mac_in1'length));
@@ -241,10 +243,10 @@ begin
                     
                     -- defines what kernel is used
                     case filter_sel is
-                        when "00" => rom_base_addr <= GAUSS_BLUR;
-                        when "01" => rom_base_addr <= AVG_BLUR;
-                        when "10" => rom_base_addr <= SHARP_FILTER;
-                        when "11" => rom_base_addr <= EDGE_FILTER;
+                        when "00" => rom_base_addr := GAUSS_BLUR;
+                        when "01" => rom_base_addr := AVG_BLUR;
+                        when "10" => rom_base_addr := SHARP_FILTER;
+                        when "11" => rom_base_addr := EDGE_FILTER;
                     end case;
 
                     next_state <= READ;
