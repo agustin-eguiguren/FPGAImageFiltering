@@ -262,22 +262,22 @@ begin
 		LEDR <= LEDSIGNAL;
 end process;
 
-	-- FILTER SIGNALS
-	address1_a <= filter_read_addr(15 downto  0)  when buffer_select = '0' else filter_write_addr(15 downto  0);
+	-- RAM A Logic
+	address1_a <= filter_read_addr  when buffer_select = '0' else filter_write_addr;
 	we1_a      <= '0'               when buffer_select = '0' else filter_we;
-	datain1_a <= (others => '0')  when buffer_select = '0' else filter_data_out;
-	
+	datain1_a  <= filter_data_out; 
 
-	address1_b <= filter_write_addr(15 downto  0) when buffer_select = '0' else filter_read_addr(15 downto  0);
+	-- RAM B Logic
+	address1_b <= filter_write_addr when buffer_select = '0' else filter_read_addr;
 	we1_b      <= filter_we         when buffer_select = '0' else '0';
-	datain1_b <= filter_data_out  when buffer_select = '0' else (others => '0');
-	
-	filter_data_in <= dataout1_a when buffer_select = '0' else dataout1_b;
-	
-	-- VGA SIGNALS
-	vga_pixel_data <= dataout2_a when buffer_select = '0' else dataout2_b;
+	datain1_b  <= filter_data_out; 
 
-	address2_a <= vga_pixel_addr    when buffer_select = '0' else (others => '0');
-	address2_b <= (others => '0')   when buffer_select = '0' else vga_pixel_addr;
+	-- Filter
+	filter_data_in <= dataout1_a when buffer_select = '0' else dataout1_b;
+
+	-- VGA SIGNALS 
+	vga_pixel_data <= dataout2_a when buffer_select = '0' else dataout2_b;
+	address2_a     <= vga_pixel_addr when buffer_select = '0' else (others => '0');
+	address2_b     <= vga_pixel_addr when buffer_select = '1' else (others => '0');
 
 end arch;

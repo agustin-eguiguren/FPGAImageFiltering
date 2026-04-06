@@ -82,14 +82,13 @@ begin
     
     M1 : MAC port map(CLK, mac_en, mac_init, mac_in1, mac_in2, mac_out);
 
-    
     process(CLK)
     begin
         if(CLK'event and CLK = '1') then
             current_state <= next_state;
             row <= next_row;
             col <= next_col;
-            pos <= next_pos; -- Update pos here, safely.
+            pos <= next_pos; 
         end if;
     end process;
 
@@ -111,6 +110,22 @@ begin
         data_out  <= (others => '0');
 
         FilterLED <= (others => '0');
+        
+        -- considering center pixel, move to 8 neighbour pixels        
+        case pos is
+        when 0 => addr_Input <= std_logic_vector(to_unsigned(((row-1)*IMG_WIDTH + (col-1)), RAM_ADDR_SIZE));
+        when 1 => addr_Input <= std_logic_vector(to_unsigned(((row-1)*IMG_WIDTH + col), RAM_ADDR_SIZE));
+        when 2 => addr_Input <= std_logic_vector(to_unsigned(((row-1)*IMG_WIDTH + (col+1)), RAM_ADDR_SIZE));
+        when 3 => addr_Input <= std_logic_vector(to_unsigned((row*IMG_WIDTH + (col-1)), RAM_ADDR_SIZE));
+        when 4 => addr_Input <= std_logic_vector(to_unsigned((row*IMG_WIDTH + col), RAM_ADDR_SIZE));
+        when 5 => addr_Input <= std_logic_vector(to_unsigned((row*IMG_WIDTH + (col+1)), RAM_ADDR_SIZE));
+        when 6 => addr_Input <= std_logic_vector(to_unsigned(((row+1)*IMG_WIDTH + (col-1)), RAM_ADDR_SIZE));
+        when 7 => addr_Input <= std_logic_vector(to_unsigned(((row+1)*IMG_WIDTH + col), RAM_ADDR_SIZE));
+        when others => addr_Input <= std_logic_vector(to_unsigned(((row+1)*IMG_WIDTH + (col+1)), RAM_ADDR_SIZE));
+        end case;
+        
+        addr_Filter <= std_logic_vector(to_unsigned((row*IMG_WIDTH + col), RAM_ADDR_SIZE));
+
         case current_state is
         
             when START =>
@@ -138,24 +153,10 @@ begin
 
                 rom_Input_addr <= std_logic_vector( to_unsigned((pos + rom_base_addr),6));
                 
-                -- considering center pixel, move to 8 neighbour pixels
-                case pos is
-                    when 0 => addr_Input <= std_logic_vector( to_unsigned(((row - 1)*(IMG_WIDTH) + (col - 1)), RAM_ADDR_SIZE));
-                    when 1 => addr_Input <= std_logic_vector( to_unsigned(((row - 1)*(IMG_WIDTH) + col), RAM_ADDR_SIZE));
-                    when 2 => addr_Input <= std_logic_vector( to_unsigned(((row - 1)*(IMG_WIDTH) + (col + 1)), RAM_ADDR_SIZE));
-                    when 3 => addr_Input <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + (col - 1)), RAM_ADDR_SIZE));
-                    when 4 => addr_Input <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + col), RAM_ADDR_SIZE));
-                    when 5 => addr_Input <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + (col + 1)), RAM_ADDR_SIZE));
-                    when 6 => addr_Input <= std_logic_vector( to_unsigned(((row + 1)*(IMG_WIDTH) + (col - 1)), RAM_ADDR_SIZE));
-                    when 7 => addr_Input <= std_logic_vector( to_unsigned(((row + 1)*(IMG_WIDTH) + col), RAM_ADDR_SIZE));
-                    when others => addr_Input <= std_logic_vector( to_unsigned(((row + 1)*(IMG_WIDTH) + (col + 1)), RAM_ADDR_SIZE));
-                end case;
-                
                 mac_in1 <= (others => '0');
                 mac_in2 <= (others => '0');
 
-                addr_Filter <= std_logic_vector( to_unsigned((row*(IMG_WIDTH) + col), RAM_ADDR_SIZE));
-
+                
                 next_state <= INFO_WAIT;
 
                 FilterLED(8) <= '1'; 
