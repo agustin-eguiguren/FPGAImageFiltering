@@ -26,7 +26,7 @@ architecture arch of FilterController is
 
 
 -- signal definitions 
-signal START, RESETb: std_logic;
+signal START, RESETb, oldSTART: std_logic;
 signal FILTER_SEL: std_logic_vector(1 downto 0);
 signal buffer_select : std_logic := '0';
 
@@ -168,7 +168,8 @@ begin
 			CLK => CLOCK_50,
 			en => kernal_en,
 			address => kernal_address,
-			data => kernal_data);
+			data => kernal_data
+	);
 			
 	img_filter : component ImageFilter
     generic map(
@@ -225,6 +226,8 @@ begin
 	 begin
 		if CLOCK_50'event and CLOCK_50 = '1' then
 
+	        oldSTART <= START;
+
 			if RESETb = '0' then
 				buffer_select <= '0';
 				current_state <= IDLE;
@@ -235,13 +238,13 @@ begin
 						filter_en <= '0';
 						buffer_select <= '0';
 						
-						if START = '0' then
+						if (oldSTART = '0') and (START = '1') then
 							current_state <= FILTERING;
 						end if;
 
-							
 					when FILTERING =>
 						filter_en <= '1';
+						
 						if filter_ready = '1' then
 							buffer_select <= not buffer_select;
 							current_state <= DISPLAY;
@@ -251,7 +254,7 @@ begin
 					when DISPLAY =>
 						filter_en <= '0';
 
-						if START = '0' then
+						if (oldSTART = '0') and (START = '1') then
 							current_state <= FILTERING;
 						end if;
 

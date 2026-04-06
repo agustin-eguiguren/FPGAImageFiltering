@@ -199,14 +199,21 @@ begin
                 if(mac_out(17) = '1') then
                     data_out <= (others => '0');
                 -- result is bigger than 255
-                elsif (to_integer(signed(mac_out)) > 255) then
-                    data_out <= (others => '1');
                 else
                     if (rom_base_addr = GAUSS_BLUR) then
+                        if (to_integer(signed(mac_out)) > 4080) then
+                            data_out <= (others => '1');
+                        end if;
                         data_out <= std_logic_vector(shift_right(unsigned(mac_out), GAUSS_SHIFT))(7 downto 0);
                     elsif (rom_base_addr = AVG_BLUR) then
+                        if (to_integer(signed(mac_out)) > 2040) then
+                            data_out <= (others => '1');
+                        end if;
                         data_out <= std_logic_vector(shift_right(unsigned(mac_out), AVG_SHIFT))(7 downto 0);
                     else
+                        if (to_integer(signed(mac_out)) > 255) then
+                            data_out <= (others => '1');
+                        end if;
                         data_out <= mac_out(7 downto 0);
                     end if;
 
