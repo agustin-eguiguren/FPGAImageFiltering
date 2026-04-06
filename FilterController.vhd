@@ -31,15 +31,14 @@ signal FILTER_SEL: std_logic_vector(1 downto 0);
 signal buffer_select : std_logic := '0';
 
 signal address1_a : std_logic_vector(15 downto 0);
-signal dataout1_a : std_logic_vector(7 downto 0);
+signal dataout1_b, dataout2_b, dataout2_a, dataout1_a : std_logic_vector(7 downto 0);
 
-signal we1_b, we1_a : std_logic:= '0';
-signal datain1_b : std_logic_vector(7 downto 0);
+signal we1_b, we2_b, we1_a, we2_a : std_logic:= '0';
+signal datain1_b, datain2_b, datain1_a, datain2_a : std_logic_vector(7 downto 0) := (others => '0');
 signal address1_b : std_logic_vector(15 downto 0);
 signal address2_b, address2_a : std_logic_vector(15 downto 0);
-signal dataout2_b : std_logic_vector(7 downto 0);
 
-signal kernal_en : std_logic := '0';
+signal kernal_en, filter_w_en : std_logic := '0';
 signal kernal_address : std_logic_vector(5 downto 0);
 signal kernal_data : std_logic_vector(7 downto 0);
 
@@ -51,8 +50,8 @@ signal filter_write_addr : std_logic_vector(15 downto 0);
 signal filter_write_data : std_logic_vector(7 downto 0);
 signal filter_we : std_logic;
 
-signal vga_pixel_addr, vga_pixel_addr_to_ram : std_logic_vector(15 downto 0);
-signal vga_pixel_data : std_logic_vector(7 downto 0);
+signal vga_pixel_addr : std_logic_vector(15 downto 0);
+signal vga_pixel_data, filter_data_out, filter_data_in : std_logic_vector(7 downto 0);
 
 signal clk_25 : std_logic := '0';
 
@@ -179,7 +178,7 @@ begin
     port map(
         CLK        => CLOCK_50,
         filter_en  => filter_en,
-        ram_in     => dataout1_a,
+        ram_in     => filter_data_in,
         rom_in     => kernal_data,
         filter_sel => FILTER_SEL(1 downto 0),
         ram_out_addr   => filter_read_addr,
@@ -187,7 +186,7 @@ begin
         ram_out_en => filter_w_en,
 		rom_addr   => kernal_address,
 		rom_r_en => kernal_en,
-        data_out   => datain1_b,
+        data_out   => filter_data_out,
         READY      => filter_ready
     );	
 
@@ -196,7 +195,7 @@ begin
 			CLOCK_50 => CLOCK_50,
 			clk_25 => clk_25,
 			KEY => KEY,
-			pixel_data  => dataout1_a,
+			pixel_data  => vga_pixel_data,
 			pixel_addr  => vga_pixel_addr,
 			VGA_CLK => VGA_CLK,
 			VGA_HS => testVGA_HS,
@@ -206,8 +205,6 @@ begin
 			VGA_R => VGA_R,
 			VGA_G => VGA_G,
 			VGA_B => VGA_B);
-			
-	address1_a <= vga_pixel_addr(15 downto 0);
 	
 	LEDR(0) <= testVGA_HS; -- CORRECT LATERRR
 	VGA_HS <= testVGA_HS;
@@ -231,12 +228,10 @@ begin
 			if RESETb = '0' then
 				current_state <= IDLE;
 				filter_en <= '0';
-				we1_b <= '0';
 			else
 				case current_state is
 					when IDLE =>
 						filter_en <= '0';
-						we1_b <= '0';
 						
 						if START = '0' then
 							current_state <= DISPLAY;
@@ -244,15 +239,14 @@ begin
 							
 					when FILTERING =>
 						filter_en <= '1';
-						we1_b <= '1';
 						if filter_ready = '1' then
 							current_state <= DISPLAY;
 							filter_en <= '0';
-							we1_b <= '0';
 						end if;
 							
 					when DISPLAY =>
 						if START = '1' then
+							filter_en <= '0';
 							buffer_select <= not buffer_select;
 							current_state <= IDLE;
 						end if;
@@ -262,9 +256,17 @@ begin
 end process;
 	address1_a <= filter_read_addr(15 downto  0)  when buffer_select = '0' else filter_write_addr(15 downto  0);
 	we1_a      <= '0'               when buffer_select = '0' else filter_we;
+	datain1_a <= (others => '0')  when buffer_select = '0' else filter_data_out;
+	
 
 	address1_b <= filter_write_addr(15 downto  0) when buffer_select = '0' else filter_read_addr(15 downto  0);
 	we1_b      <= filter_we         when buffer_select = '0' else '0';
+	datain1_b <= filter_data_out  when buffer_select = '0' else (others => '0');
 	
-	vga_pixel_addr_to_ram <= address2_b when buffer_select = '0' else address2_a;
+	filter_data_in <= dataout1_a when buffer_select = '0' else dataout1_b;
+	vga_pixel_data <= dataout1_b when buffer_select = '0' else dataout1_a;
+
+	address2_a <= vga_pixel_addr    when buffer_select = '0' else (others => '0');
+	address2_b <= (others => '0')   when buffer_select = '0' else vga_pixel_addr;
+
 end arch;
